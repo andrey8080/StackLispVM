@@ -27,6 +27,7 @@ class Lexer:
             ('LE',       r'<='),
             ('GT',       r'>'),
             ('GE',       r'>='),
+            ('EQ',       r'=='),
             ('PLUS',     r'\+'),
             ('MINUS',    r'-'),
             ('MOD',      r'\*'),

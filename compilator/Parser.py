@@ -1,15 +1,17 @@
-from ast_nodes import *
+from compilator.ast_nodes import *
 
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.pos = 0
 
+
     def parse(self):
         expressions = []
         while self.pos < len(self.tokens):
             expressions.append(self.parse_expression())
         return Program(expressions)
+
 
     def parse_expression(self):
         token = self.tokens[self.pos]
@@ -32,7 +34,7 @@ class Parser:
                 return self.parse_input()
             elif token.type == 'PARSE_INT':
                 return self.parse_parse_int()
-            elif token.type in ['LT', 'GT', 'EQ']:
+            elif token.type in ['LT', 'LET', 'GT', 'GET', 'EQ']:
                 return self.parse_binary_operator()
             elif token.type in ['PLUS', 'MINUS', 'MOD', 'DIVIDE']:
                 return self.parse_binary_operator()
@@ -64,7 +66,8 @@ class Parser:
 
         elif token.type == 'STRING':
             self.pos += 1
-            return String(token.value)
+            value = token.value
+            return String(token.value[1:-1])
 
         else:
             raise RuntimeError(f'Unexpected token: {token}')
@@ -81,7 +84,8 @@ class Parser:
         self.expect_token('RPAREN')  # consume ')'
 
         return FunctionCall(function_name, arguments)
-    
+
+
     def parse_for(self):
         self.pos += 1  # consume 'for'
 
@@ -119,12 +123,12 @@ class Parser:
         return For(loop_var, start_expr, end_expr, body)
 
 
-
     def parse_parse_int(self):
         self.pos += 1  # consume 'parse-int'
         argument = self.parse_expression()  # Парсим аргумент для parse-int
         self.expect_token('RPAREN')  # consume ')'
         return UnaryOperator('parse-int', argument)
+
 
     def parse_let(self):
         self.pos += 1  # consume 'let'
@@ -149,6 +153,7 @@ class Parser:
 
         return Let(bindings, body)
 
+
     def parse_setq(self):
         self.pos += 1  # consume 'setq'
 
@@ -159,6 +164,7 @@ class Parser:
 
         self.expect_token('RPAREN')  # consume ')'
         return SetQ(variable, value)
+
 
     def parse_function(self):
         self.pos += 1  # consume 'function'
@@ -181,6 +187,7 @@ class Parser:
 
         return Function(name, params, body)
 
+
     def parse_if(self):
         self.pos += 1  # consume 'if'
 
@@ -191,16 +198,19 @@ class Parser:
         self.expect_token('RPAREN')  # Expect closing parenthesis
         return If(condition, then_branch, else_branch)
 
+
     def parse_print(self):
         self.pos += 1  # consume 'print'
         value = self.parse_expression()
         self.expect_token('RPAREN')
         return Print(value)
 
+
     def parse_input(self):
         self.pos += 1  # consume 'input'
         self.expect_token('RPAREN')  # consume ')'
         return Input()
+
 
     def expect_token(self, type_):
         if self.tokens[self.pos].type != type_:
@@ -208,6 +218,7 @@ class Parser:
         token = self.tokens[self.pos]
         self.pos += 1
         return token
+
 
     def parse_binary_operator(self):
         operator = self.tokens[self.pos].value
@@ -219,6 +230,7 @@ class Parser:
         self.expect_token('RPAREN')  # Expect the closing parenthesis for the binary expression
 
         return BinaryOperator(operator, left_operand, right_operand)
+
 
     def parse_unary_operator(self):
         operator = self.tokens[self.pos].value
