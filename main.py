@@ -14,9 +14,7 @@ if __name__ == "__main__":
     print("Абстрактное синтаксическое дерево")
     print(ast._str())
 
-    # Создание генератора кода
     codegen = CodeGenerator()
-
     # Генерация ассемблерного кода из AST
     codegen.generate_code(ast)
 

@@ -40,6 +40,8 @@ class Parser:
                 return self.parse_binary_operator()
             elif token.type == 'FOR':
                 return self.parse_for()
+            elif token.type == 'SYMBOL':
+                return self.parse_function_call()
             else:
                 expressions = []
                 while self.tokens[self.pos].type != 'RPAREN':

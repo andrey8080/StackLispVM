@@ -42,6 +42,8 @@ class CodeGenerator:
             self.generate_print_code(node)
         elif isinstance(node, Function):
             self.generate_function_code(node)
+        elif isinstance(node, FunctionCall):
+            self.generate_call_code(node)
         elif isinstance(node, BinaryOperator):
             self.generate_binary_operation_code(node)
         elif isinstance(node, UnaryOperator):
@@ -136,14 +138,6 @@ class CodeGenerator:
         self.generate_code(node.value)
         self.assembler_code.append("OUT")
 
-    def generate_function_code(self, node):
-        """Генерация кода для функции."""
-        function_label = self.generate_label()
-        self.assembler_code.append(f"{function_label}:")
-        for expr in node.body:
-            self.generate_code(expr)
-        self.assembler_code.append("RET")
-
     def generate_binary_operation_code(self, node):
         """Генерация кода для бинарной операции."""
         self.generate_code(node.left)
@@ -221,3 +215,31 @@ class CodeGenerator:
     def get_assembler_code(self):
         """Возвращает сгенерированный ассемблерный код."""
         return "\n".join(self.assembler_code)
+
+    def generate_call_code(self, node):
+        """Генерация кода для вызова функции."""
+        if isinstance(node, FunctionCall):
+            function_label = node.function_name  # Название функции
+            if function_label not in self.symbol_table:
+                raise ValueError(f"Функция {function_label} не определена")
+
+            for arg in node.arguments:
+                self.generate_code(arg)  # Генерация кода для аргументов функции
+            self.assembler_code.append(f"CALL {function_label}")
+        else:
+            raise ValueError(f"Неверный тип узла для CALL: {type(node)}")
+
+
+    def generate_function_code(self, node):
+        """Генерация кода для функции."""
+        function_name = node.name
+        # Добавляем функцию в таблицу символов
+        self.symbol_table[function_name] = function_name
+        
+        self.assembler_code.append(f"{function_name}:")
+        
+        # Генерация кода для тела функции
+        for expr in node.body:
+            self.generate_code(expr)
+        
+        self.assembler_code.append("RET")  # Возврат после выполнения функции
