@@ -1,6 +1,6 @@
 (let ((a 3)(b 4)))
 (let ((flag false)))
-(print "введите a")
+(print "Enter a")
 (setq a (input))
 (setq b (if flag 2 -2))
 
@@ -12,7 +12,7 @@
 )
 
 (function run-maths ()
-  (print "Введите количество итераций:")
+  (print "Enter number of iterations")
   (let ((n (parse-int (input)))))
    (loop for i from 1 to n do
       (process-maths a b i)

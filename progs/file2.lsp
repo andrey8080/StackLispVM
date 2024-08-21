@@ -1,5 +1,5 @@
-(function process-maths
-    (print 98)
+(function process-maths ()
+    (print "a is negative")
 )
 
 (process-maths)
