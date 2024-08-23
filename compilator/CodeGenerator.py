@@ -1,4 +1,5 @@
 from compilator.ast_nodes import *
+from isa import Opcode
 
 class CodeGenerator:
     def __init__(self):
@@ -260,60 +261,35 @@ class CodeGenerator:
         binary_code = ""
         for instruction in self.assembler_code:
             parts = instruction.split()
-            opcode = parts[0]
+            opcode_str = parts[0]
             binary_instruction = ""
 
-            if opcode in self.isa_opcode:
-                binary_instruction += f"{self.isa_opcode[opcode]:05b}"
-                
+            if opcode_str in Opcode.__members__:
+                opcode = Opcode[opcode_str]
+                binary_instruction += f"{opcode.value:08b}"
+
                 if len(parts) > 1:  # Если есть аргументы
                     operand = parts[1]
-                    
-                    if opcode in ["PUSH", "LOAD", "STORE"]:
+
+                    if opcode in {Opcode.PUSH, Opcode.LOAD, Opcode.STORE}:
                         # Преобразуем операнд в 12-битное число (адрес или значение)
                         operand_bin = f"{int(operand, 16):012b}"
                         binary_instruction += operand_bin
 
-                    elif opcode == "CALL":
+                    elif opcode == Opcode.CALL:
                         # Для CALL используем адрес функции из таблицы меток
                         label_bin = f"{self.label_table[operand]:012b}"
                         binary_instruction += label_bin
 
-                    elif opcode.startswith("J"):
+                    elif opcode_str.startswith("J"):
                         # Для команд перехода добавляем 12-битную метку
                         label_bin = f"{self.label_table[operand]:012b}"
                         binary_instruction += label_bin
                 else:
                     # Добавляем 12 нулевых бит для выравнивания длины команды без операнда
                     binary_instruction += "0" * 12
+
             if binary_instruction:
                 binary_code += binary_instruction + "\n"
-        return binary_code.strip()
 
-    isa_opcode = {
-        "PUSH":  0b00000,
-        "POP":   0b00001,
-        "ADD":   0b00010,
-        "SUB":   0b00011,
-        "MUL":   0b00100,
-        "DIV":   0b00101,
-        "AND":   0b00110,
-        "OR":    0b00111,
-        "NOT":   0b01000,
-        "LOAD":  0b01001,
-        "STORE": 0b01010,
-        "IN":    0b01011,
-        "OUT":   0b01100,
-        "JMP":   0b01101,
-        "CMP":   0b01110,
-        "JZ":    0b01111,
-        "JNZ":   0b10000,
-        "JLT":   0b10001,
-        "JLE":   0b10010,
-        "JGT":   0b10011,
-        "JGE":   0b10100,
-        "JEQ":   0b10101,
-        "JNE":   0b10110,
-        "CALL":  0b10111,
-        "RET":   0b11000,
-    }
+        return binary_code.strip()

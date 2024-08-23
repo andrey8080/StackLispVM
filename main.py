@@ -42,3 +42,6 @@ if __name__ == "__main__":
 
         for stroke in binary_code:
             file_bin.write(stroke)
+
+
+# python3 main.py -asm progs/file2.lsp progs/asm/file2.asm
